@@ -1,33 +1,55 @@
 pipeline {
-        agent any // Specifies where the pipeline will run (any available Jenkins agent)
+    agent any
 
-        stages {
-            stage('Build') { // Defines a stage named 'Build'
-                steps {
-                    sh 'mvn clean install' // Executes shell commands within the stage
-                }
-            }
-            stage('Test') {
-                steps {
-                    sh 'mvn test'
-                }
-            }
-            stage('Deploy') {
-                steps {
-                    echo 'Deploying application...'
-                }
+    stages {
+        stage('Checkout') {
+            steps {
+                // Replace with your SCM details (e.g., Git repository URL and branch)
+                checkout([$class: 'GitSCM', branches: [[name: 'main']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/your-org/your-repo.git']]])
             }
         }
 
-        post { // Defines actions to be executed after all stages
-            always {
-                echo 'Pipeline finished.'
+        stage('Build') {
+            steps {
+                // Install Python dependencies
+                sh 'pip install -r requirements.txt'
             }
-            success {
-                echo 'Pipeline succeeded!'
+        }
+
+        stage('Test') {
+            steps {
+                // Run your Python tests (e.g., using pytest)
+                sh 'pytest'
             }
-            failure {
-                echo 'Pipeline failed!'
+        }
+
+        stage('Package') {
+            steps {
+                // Create a distribution package (e.g., wheel or sdist)
+                sh 'python setup.py bdist_wheel'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // Deploy your application (e.g., to a server, artifact repository)
+                // sh 'scp dist/*.whl user@your-server:/path/to/deploy'
             }
         }
     }
+
+    post {
+        always {
+            // Clean up workspace after the pipeline finishes
+            cleanWs()
+        }
+        failure {
+            // Send notifications on failure
+            echo 'Pipeline failed!'
+        }
+        success {
+            // Send notifications on success
+            echo 'Pipeline succeeded!'
+        }
+    }
+}
