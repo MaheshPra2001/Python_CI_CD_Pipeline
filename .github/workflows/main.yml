@@ -1,0 +1,32 @@
+name: Python CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-test-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '18'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m unittest test_app.py
+
+      - name: Deploy to staging (Placeholder)
+        run: |
+          echo "Deploying application to staging environment..."
+          # Replace this with actual deployment commands, e.g.,:
+          # scp -r . user@staging-server:/var/www/my_app
+          # ssh user@staging-server "systemctl restart my_app_service"
+          echo "Deployment to staging complete."
